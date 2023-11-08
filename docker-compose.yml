@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  db:
+    image: mongo:latest
+    hostname: mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=starwars_db
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - 27017:27017
+
+  flask_app:
+    container_name: flask_app
+    restart: always
+    build: ./flask_app
+    ports:
+      - "5000:5000"
+    depends_on:
+    - db
+    command: uwsgi --ini /setup/wsgi.ini
+    volumes:
+      - ./flask_app/app:/app
+
+  test_flask_app:
+    container_name: test_flask_app
+    build:
+      context: ./flask_app
+      dockerfile: tests.Dockerfile
+    command: pytest .
+    volumes:
+      - ./flask_app/app:/app/app
+      - ./flask_app/tests:/app/tests
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flask_app
