@@ -23,13 +23,13 @@ spec = FlaskPydanticSpec("flask", title="Demo API", version="v1")
 spec.register(app)
 
 
-@app.route("/", methods=["GET"])
+@app.get("/")
 @spec.validate(resp=Response(HTTP_200=Message))
 def home():
     return jsonify({"message": "Hello World!"}), 200
 
 
-@app.route("/films", methods=["POST"])
+@app.post("/films")
 @spec.validate(body=Request(Film), resp=Response(HTTP_201=Message))
 def create_film():
     film_data = request.context.body.dict()
@@ -40,7 +40,7 @@ def create_film():
     )
 
 
-@app.route("/films/<film_id>", methods=["PUT"])
+@app.put("/films/<film_id>")
 @spec.validate(body=Request(Film), resp=Response(HTTP_200=Message, HTTP_404=Error))
 def edit_film(film_id):
     film_data = request.context.body.dict()
@@ -51,7 +51,7 @@ def edit_film(film_id):
     return jsonify({"message": "Film updated successfully!"}), 200
 
 
-@app.route("/films", methods=["GET"])
+@app.get("/films")
 @spec.validate(
     query=FilmFilter,
     resp=Response(HTTP_200=FilmsResponse),
@@ -76,6 +76,17 @@ def list_films():
 @app.errorhandler(Exception)
 def handle_exception(e):
     return jsonify(error=str(e)), 500
+
+
+@app.post("/planet")
+@spec.validate(body=Request(Film), resp=Response(HTTP_201=Message))
+def create_planet():
+    planet_data = request.context.body.dict()
+    film_id = FilmService.create(planet_data)
+    return (
+        jsonify({"message": "Film created successfully!", "film_id": film_id}),
+        201,
+    )
 
 
 if __name__ == "__main__":
