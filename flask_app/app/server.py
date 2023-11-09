@@ -72,7 +72,8 @@ def list_films():
         200,
     )
 
-@app.post("/planet")
+
+@app.post("/planets")
 @spec.validate(body=Request(Planet), resp=Response(HTTP_201=Message))
 def create_planet():
     planet_data = request.context.body.dict()

@@ -158,3 +158,40 @@ def test_list_films_pages(client, mongo_mock):
     assert "films" in data
     assert len(data["films"]) == 1
     assert data["films"][0]["title"] == "A New Hope"
+
+
+def test_create_planet(client, mongo_mock):
+    planet_data = {
+        "name": "Tatooine",
+        "rotation_period": "23",
+        "orbital_period": "304",
+        "diameter": "10465",
+        "climate": "arid",
+        "gravity": "1 standard",
+        "terrain": "desert",
+        "surface_water": "1",
+        "population": "200000",
+        "residents": [
+            "Luke Skywalker",
+            "C-3PO",
+            "Darth Vader",
+            "Owen Lars",
+            "Beru Whitesun lars",
+            "R5-D4",
+            "Biggs Darklighter",
+            "Anakin Skywalker",
+            "Shmi Skywalker",
+            "Cliegg Lars",
+        ],
+        "films": [
+            "A New Hope",
+            "Return of the Jedi",
+            "The Phantom Menace",
+            "Attack of the Clones",
+            "Revenge of the Sith",
+        ],
+    }
+    response = client.post("/planets", json=planet_data)
+    assert response.status_code == 201
+    data = response.get_json()
+    assert "Planet created successfully!" in data["message"]
