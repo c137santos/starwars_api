@@ -49,3 +49,9 @@ class FilmService:
             .skip(skip)
             .limit(page_size)
         )
+
+
+class PlanetService:
+    @staticmethod
+    def create(planet_data: dict) -> ObjectId:
+        return MongoDBConnection.planets().insert_one(planet_data).inserted_id

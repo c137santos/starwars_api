@@ -4,8 +4,8 @@ from flask import Flask, request, jsonify
 from flask.json.provider import DefaultJSONProvider
 from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
 
-from models import Error, Film, FilmsResponse, FilmFilter, Message
-from service import FilmService
+from models import Error, Film, FilmsResponse, FilmFilter, Message, Planet
+from service import FilmService, PlanetService
 
 
 class MongoJsonProvider(DefaultJSONProvider):
@@ -72,21 +72,20 @@ def list_films():
         200,
     )
 
+@app.post("/planet")
+@spec.validate(body=Request(Planet), resp=Response(HTTP_201=Message))
+def create_planet():
+    planet_data = request.context.body.dict()
+    film_id = PlanetService.create(planet_data)
+    return (
+        jsonify({"message": "Planet created successfully!", "planet_id": film_id}),
+        201,
+    )
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     return jsonify(error=str(e)), 500
-
-
-@app.post("/planet")
-@spec.validate(body=Request(Film), resp=Response(HTTP_201=Message))
-def create_planet():
-    planet_data = request.context.body.dict()
-    film_id = FilmService.create(planet_data)
-    return (
-        jsonify({"message": "Film created successfully!", "film_id": film_id}),
-        201,
-    )
 
 
 if __name__ == "__main__":
