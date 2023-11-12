@@ -13,7 +13,16 @@ class FilmFilter(BaseModel):
     title: Optional[str] = None
     director: Optional[str] = None
     order_by: Optional[str] = "episode_id"
+    planet: Optional[str]
 
+
+class PlanetsFilter(BaseModel):
+    page: Optional[int] = 1
+    page_size: Optional[int] = 10
+    film: Optional[str] = None
+    order_by: Optional[str] = "episode_id"
+    name: Optional[str] = None
+    resident: Optional[str] = None 
 
 class Message(BaseModel):
     message: str

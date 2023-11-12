@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from flask.json.provider import DefaultJSONProvider
 from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
 
-from models import Error, Film, FilmsResponse, FilmFilter, Message, Planet
+from models import Error, Film, FilmsResponse, FilmFilter, Message, Planet, PlanetsFilter, PlanetsResponse
 from service import FilmService, PlanetService
 
 
@@ -66,6 +66,7 @@ def list_films():
                     order_by=request.context.query.order_by,
                     page=request.context.query.page,
                     page_size=request.context.query.page_size,
+                    planet=request.context.query.planet
                 )
             }
         ),
@@ -82,6 +83,37 @@ def create_planet():
         jsonify({"message": "Planet created successfully!", "planet_id": film_id}),
         201,
     )
+
+@app.put("/planets/<planet_id>")
+@spec.validate(body=Request(Planet), resp=Response(HTTP_200=Message, HTTP_404=Error))
+def edit_planet(planet_id):
+    planet_data = request.context.body.dict()
+    try:
+        PlanetService.update(planet_id, planet_data)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    return jsonify({"message": "Planet updated successfully!"}), 200
+
+
+@app.get("/planets")
+@spec.validate(query=PlanetsFilter, resp=Response(HTTP_200=PlanetsResponse))
+def list_planets():
+    return (
+        jsonify(
+            {
+                "planets": PlanetService.list(
+                    name=request.context.query.name,
+                    page=request.context.query.page,
+                    page_size=request.context.query.page_size,
+                    film=request.context.query.film,
+                    order_by=request.context.query.order_by,
+                    resident=request.context.query.resident,
+                )
+            }
+        ),
+        200,
+    )
+
 
 
 @app.errorhandler(Exception)

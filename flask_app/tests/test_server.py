@@ -56,9 +56,9 @@ def test_update_film(client, mongo_mock):
         "release_date": "1977-05-25",
         "planets": ["Tatooine", "Alderaan"],
     }
+    film_id = MongoDBConnection.films().insert_one(film_data).inserted_id
     film_data["title"] = "A New Hope"
     film_data["director"] = "Lucas Jorge"
-    film_id = MongoDBConnection.films().insert_one(film_data).inserted_id
     response = client.put(f"/films/{film_id}", json=film_data)
     assert response.status_code == 200
     data = response.get_json()
@@ -159,6 +159,32 @@ def test_list_films_pages(client, mongo_mock):
     assert len(data["films"]) == 1
     assert data["films"][0]["title"] == "A New Hope"
 
+def test_list_films_filters_planet(client, mongo_mock):
+    film_data_1 = {
+        "title": "A New Hope",
+        "episode_id": 4,
+        "director": "George Lucas",
+        "producer": ["Gary Kurtz", "Rick McCallum"],
+        "release_date": "1977-05-25",
+        "planets": ["Tatooine", "Alderaan"],
+    }
+    film_data_2 = {
+        "title": "Star Wars: Episode I – The Phantom Menace",
+        "episode_id": 1,
+        "director": "George Lucas",
+        "producer": ["Rick McCallum"],
+        "release_date": "1999-05-19",
+        "planets": ["Naboo", "Tatooine"],
+    }
+    MongoDBConnection.films().insert_many([film_data_1, film_data_2])
+    response = client.get("/films?planet=Tatooine")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "films" in data
+    assert len(data["films"]) == 2
+    response = client.get("/films?planet=Alderaan")
+    data = response.get_json()
+    assert len(data["films"]) == 1
 
 def test_create_planet(client, mongo_mock):
     planet_data = {
@@ -195,3 +221,47 @@ def test_create_planet(client, mongo_mock):
     assert response.status_code == 201
     data = response.get_json()
     assert "Planet created successfully!" in data["message"]
+
+def test_edit_planet(client, mongo_mock):
+    planet_data = {
+        "name": "Tatooine",
+        "rotation_period": "23",
+        "orbital_period": "304",
+        "diameter": "10465",
+        "climate": "arid",
+        "gravity": "1 standard",
+        "terrain": "desert",
+        "surface_water": "1",
+        "population": "200000",
+        "residents": [
+            "Luke Skywalker",
+            "C-3PO",
+            "Darth Vader",
+            "Owen Lars",
+            "Beru Whitesun lars",
+            "R5-D4",
+            "Biggs Darklighter",
+            "Anakin Skywalker",
+            "Shmi Skywalker",
+            "Cliegg Lars",
+        ],
+        "films": [
+            "A New Hope",
+            "Return of the Jedi",
+            "The Phantom Menace",
+            "Attack of the Clones",
+            "Revenge of the Sith",
+        ],
+    }
+    planet_id = MongoDBConnection.planets().insert_one(planet_data).inserted_id
+    planet_data["climate"] = "rainforest"
+    planet_data["gravity"] = "2 standard"
+    response = client.put(f"/planets/{planet_id}", json=planet_data)
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "Planet updated successfully!" in data["message"]
+
+    response_list = client.get("/planets")
+    data = response_list.get_json()
+    assert data["planets"][0]["climate"] == "rainforest"
+    assert data["planets"][0]["gravity"] == "2 standard"
