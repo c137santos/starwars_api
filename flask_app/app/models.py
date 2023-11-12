@@ -22,7 +22,8 @@ class PlanetsFilter(BaseModel):
     film: Optional[str] = None
     order_by: Optional[str] = "episode_id"
     name: Optional[str] = None
-    resident: Optional[str] = None 
+    resident: Optional[str] = None
+
 
 class Message(BaseModel):
     message: str

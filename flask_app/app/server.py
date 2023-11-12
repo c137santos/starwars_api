@@ -4,7 +4,16 @@ from flask import Flask, request, jsonify
 from flask.json.provider import DefaultJSONProvider
 from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
 
-from models import Error, Film, FilmsResponse, FilmFilter, Message, Planet, PlanetsFilter, PlanetsResponse
+from models import (
+    Error,
+    Film,
+    FilmsResponse,
+    FilmFilter,
+    Message,
+    Planet,
+    PlanetsFilter,
+    PlanetsResponse,
+)
 from service import FilmService, PlanetService
 
 
@@ -66,7 +75,7 @@ def list_films():
                     order_by=request.context.query.order_by,
                     page=request.context.query.page,
                     page_size=request.context.query.page_size,
-                    planet=request.context.query.planet
+                    planet=request.context.query.planet,
                 )
             }
         ),
@@ -83,6 +92,7 @@ def create_planet():
         jsonify({"message": "Planet created successfully!", "planet_id": film_id}),
         201,
     )
+
 
 @app.put("/planets/<planet_id>")
 @spec.validate(body=Request(Planet), resp=Response(HTTP_200=Message, HTTP_404=Error))
@@ -113,7 +123,6 @@ def list_planets():
         ),
         200,
     )
-
 
 
 @app.errorhandler(Exception)
