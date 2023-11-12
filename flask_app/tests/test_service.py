@@ -1,4 +1,3 @@
-import mongomock
 import pytest
 from bson import ObjectId
 
@@ -6,12 +5,13 @@ from service import FilmService
 from db import MongoDBConnection
 
 
-# Configuração do banco de dados mock
-@pytest.fixture(scope="function")
-def mongo_mock():
-    MongoDBConnection.client = mongomock.MongoClient()
-    yield
-    MongoDBConnection.client = None
+def test_mongodb_connection_setup(mongo_mock):
+    connection = MongoDBConnection.get_client()
+    actual_host = connection.address[0]
+    actual_port = connection.address[1]
+
+    assert actual_host == "localhost"
+    assert actual_port == 27017
 
 
 def test_create_film(mongo_mock):

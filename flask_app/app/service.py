@@ -91,7 +91,7 @@ class PlanetService:
         if film:
             filter_query["films"] = {"$regex": film, "$options": "i"}
         if resident:
-            filter_query["resident"] = {"$regex": resident, "$options": "i"}
+            filter_query["residents"] = {"$regex": resident, "$options": "i"}
 
         d = 1
         if order_by[0] == "-":
@@ -106,3 +106,9 @@ class PlanetService:
             .skip(skip)
             .limit(page_size)
         )
+
+    @staticmethod
+    def delete(planet_id: str) -> None:
+        result = MongoDBConnection.planets().delete_one({"_id": ObjectId(planet_id)})
+        if result.deleted_count == 0:
+            raise ValueError(f"Planet not found with ID: {planet_id}")

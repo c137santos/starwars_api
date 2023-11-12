@@ -28,7 +28,9 @@ class MongoJsonProvider(DefaultJSONProvider):
 
 app = Flask(__name__)
 app.json = MongoJsonProvider(app)
-spec = FlaskPydanticSpec("flask", title="Demo API", version="v1")
+spec = FlaskPydanticSpec(
+    "flask", title="API: Astromech's Protocol Interstellar", version="v1"
+)
 spec.register(app)
 
 
@@ -133,6 +135,16 @@ def list_planets():
         ),
         200,
     )
+
+
+@app.delete("/planets/<id_planet>")
+@spec.validate(resp=Response(HTTP_200=Message, HTTP_404=Error))
+def delete_planet(id_planet):
+    try:
+        PlanetService.delete(id_planet)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    return jsonify({"message": "Planet deleted successfully!"}), 200
 
 
 @app.errorhandler(Exception)
