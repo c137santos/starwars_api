@@ -56,6 +56,12 @@ class FilmService:
             .limit(page_size)
         )
 
+    @staticmethod
+    def delete(film_id: str) -> None:
+        result = MongoDBConnection.films().delete_one({"_id": ObjectId(film_id)})
+        if result.deleted_count == 0:
+            raise ValueError(f"Film not found with ID: {film_id}")
+
 
 class PlanetService:
     @staticmethod

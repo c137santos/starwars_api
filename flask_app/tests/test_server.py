@@ -70,6 +70,20 @@ def test_update_film(client, mongo_mock):
     assert data["films"][0]["director"] == "Lucas Jorge"
 
 
+def test_update_film_raise(client, mongo_mock):
+    film_id = "5" * 24
+    film_data = {
+        "title": "A Old Hope",
+        "episode_id": 4,
+        "director": "Georgi Lucas",
+        "producer": ["Gary Kurtz", "Rick McCallum"],
+        "release_date": "1977-05-25",
+        "planets": ["Tatooine", "Alderaan"],
+    }
+    response = client.put(f"/films/{film_id}", json=film_data)
+    assert response.status_code == 404
+
+
 def test_list_films(client, mongo_mock):
     response = client.get("/films")
     assert response.status_code == 200

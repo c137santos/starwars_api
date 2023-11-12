@@ -30,7 +30,7 @@ class Message(BaseModel):
 
 
 class Error(BaseModel):
-    Error: str
+    error: str
 
 
 class Film(BaseModel):

@@ -83,13 +83,23 @@ def list_films():
     )
 
 
+@app.delete("/films/<id_film>")
+@spec.validate(resp=Response(HTTP_200=Message, HTTP_404=Error))
+def delete_film(id_film):
+    try:
+        FilmService.delete(id_film)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    return jsonify({"message": "Film deleted successfully!"}), 200
+
+
 @app.post("/planets")
 @spec.validate(body=Request(Planet), resp=Response(HTTP_201=Message))
 def create_planet():
     planet_data = request.context.body.dict()
-    film_id = PlanetService.create(planet_data)
+    planet_id = PlanetService.create(planet_data)
     return (
-        jsonify({"message": "Planet created successfully!", "planet_id": film_id}),
+        jsonify({"message": "Planet created successfully!", "planet_id": planet_id}),
         201,
     )
 

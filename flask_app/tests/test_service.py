@@ -1,5 +1,6 @@
 import mongomock
 import pytest
+from bson import ObjectId
 
 from service import FilmService
 from db import MongoDBConnection
@@ -47,6 +48,29 @@ def test_update_film(mongo_mock):
 
     updated_film = MongoDBConnection.films().find_one({"_id": film_id})
     assert updated_film["title"] == "New Title"
+
+
+def test_delete_film(mongo_mock):
+    film_data = {
+        "title": "Old Title",
+        "episode_id": 2,
+        "director": "Test Director",
+        "producer": ["Test Producer"],
+        "release_date": "2023-01-02",
+        "planets": ["Mars"],
+    }
+    film_id = MongoDBConnection.films().insert_one(film_data).inserted_id
+
+    FilmService.delete(str(film_id))
+
+    delete_film = MongoDBConnection.films().find_one({"_id": film_id})
+    assert delete_film is None
+
+
+def test_delete_film_raise(mongo_mock):
+    film_id = ObjectId("5" * 24)
+    with pytest.raises(ValueError):
+        FilmService.delete(film_id)
 
 
 def test_list_films(mongo_mock):
