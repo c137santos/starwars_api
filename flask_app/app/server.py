@@ -12,6 +12,7 @@ from models import (
     FilmFilter,
     Message,
     Planet,
+    PlanetCreated,
     PlanetsFilter,
     PlanetsResponse,
 )
@@ -97,7 +98,7 @@ def delete_film(id_film):
 
 
 @app.post("/planets")
-@spec.validate(body=Request(Planet), resp=Response(HTTP_201=Message))
+@spec.validate(body=Request(PlanetCreated), resp=Response(HTTP_201=Message))
 def create_planet():
     planet_data = request.context.body.dict()
     planet_id = PlanetService.create(planet_data)
