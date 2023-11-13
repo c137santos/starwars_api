@@ -40,6 +40,9 @@ class Film(BaseModel):
     producer: List[str]
     release_date: str
     planets: List[str]
+
+
+class FilmCreated(Film):
     created: str = Field(default_factory=now_str)
 
 
@@ -60,6 +63,21 @@ class Planet(BaseModel):
     residents: Optional[List[str]]
     films: List[str]
     created: str = Field(default_factory=now_str)
+
+
+class UpdatedPlanet(BaseModel):
+    name: str
+    rotation_period: Optional[str]
+    orbital_period: Optional[str]
+    diameter: Optional[str]
+    climate: Optional[str]
+    gravity: Optional[str]
+    terrain: Optional[str]
+    surface_water: Optional[str]
+    population: Optional[str]
+    residents: Optional[List[str]]
+    films: List[str]
+    last_updated: str = Field(default_factory=now_str)
 
 
 class PlanetsResponse(BaseModel):

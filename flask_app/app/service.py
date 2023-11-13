@@ -1,6 +1,7 @@
 from typing import List, Optional
 from bson import ObjectId
 from db import MongoDBConnection
+from models import now_str
 
 
 class FilmService:
@@ -11,7 +12,8 @@ class FilmService:
     @staticmethod
     def update(film_id: str, film_data: dict) -> None:
         result = MongoDBConnection.films().update_one(
-            {"_id": ObjectId(film_id)}, {"$set": film_data}
+            {"_id": ObjectId(film_id)},
+            {"$set": {**film_data, "last_updated": now_str()}},
         )
         if result.matched_count == 0:
             raise ValueError(f"Film not found with ID: {film_id}")
@@ -71,7 +73,8 @@ class PlanetService:
     @staticmethod
     def update(planet_id: str, planet_data: dict) -> None:
         result = MongoDBConnection.planets().update_one(
-            {"_id": ObjectId(planet_id)}, {"$set": planet_data}
+            {"_id": ObjectId(planet_id)},
+            {"$set": {**planet_data, "last_updated": now_str()}},
         )
         if result.matched_count == 0:
             raise ValueError(f"Planet not found with ID: {planet_id}")

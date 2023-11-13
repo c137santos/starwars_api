@@ -1,5 +1,7 @@
+from datetime import datetime
 from server import app as flask_app
 from db import MongoDBConnection
+import freezegun
 
 
 def test_home(client):
@@ -225,3 +227,42 @@ def test_delete_film_error(client, mongo_mock):
     id_film = "5" * 24
     response = client.delete(f"/films/{id_film}")
     assert response.status_code == 404
+
+
+def test_update_film_date(client, mongo_mock):
+    with freezegun.freeze_time("1999-01-01 12:00:00"):
+        film_data = {
+            "title": "A Old Hope",
+            "episode_id": 4,
+            "director": "Georgi Lucas",
+            "producer": ["Gary Kurtz", "Rick McCallum"],
+            "release_date": "1977-05-25",
+            "planets": ["Tatooine", "Alderaan"],
+            "created": datetime(1999, 1, 1, 12, 0, 0).strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        film_id = MongoDBConnection.films().insert_one(film_data).inserted_id
+
+    with freezegun.freeze_time("2023-01-02 12:00:00"):
+        film_data["title"] = "A New Hope"
+        film_data["director"] = "Lucas Jorge"
+        response = client.put(f"/films/{film_id}", json=film_data)
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "Film updated successfully!" in data["message"]
+
+    response_list = client.get("/films")
+    data = response_list.get_json()
+
+    created_datetime = data["films"][0]["created"]
+    assert created_datetime == datetime(1999, 1, 1, 12, 0, 0).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    updated_datetime = data["films"][0]["last_updated"]
+    assert updated_datetime == datetime(2023, 1, 2, 12, 0, 0).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    assert data["films"][0]["title"] == "A New Hope"
+    assert data["films"][0]["director"] == "Lucas Jorge"

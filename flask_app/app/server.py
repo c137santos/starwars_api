@@ -7,6 +7,7 @@ from flask_pydantic_spec import FlaskPydanticSpec, Response, Request
 from models import (
     Error,
     Film,
+    FilmCreated,
     FilmsResponse,
     FilmFilter,
     Message,
@@ -41,7 +42,7 @@ def home():
 
 
 @app.post("/films")
-@spec.validate(body=Request(Film), resp=Response(HTTP_201=Message))
+@spec.validate(body=Request(FilmCreated), resp=Response(HTTP_201=Message))
 def create_film():
     film_data = request.context.body.dict()
     film_id = FilmService.create(film_data)

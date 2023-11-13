@@ -17,6 +17,9 @@ Os Astromech podem dados sobre planetas distantes e filmes que documentam as gra
 
 Preparem-se, entusiastas da tecnologia e aventureiros intergalácticos, para uma experiência que transcende os limites da imaginação. Com a 'API: Astromech's Protocol Interstellar', o universo de Star Wars está ao seu alcance como nunca antes!
 
+Fique seguro, tripulante, nosso sistema está bem testado!
+
+![Alt text](image.png)
 
 # Setup A.P.I
 

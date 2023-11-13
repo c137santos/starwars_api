@@ -1,9 +1,11 @@
 import pytest
 from mongomock import MongoClient
+
 from server import app as flask_app
 from db import MongoDBConnection
 
 
+# Configuração do banco de dados mock
 @pytest.fixture(scope="function")
 def mongo_mock():
     MongoDBConnection.client = MongoClient()
